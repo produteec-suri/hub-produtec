@@ -424,7 +424,23 @@
 
 </main>
 
-<script>
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-app.js";
+  import { getFirestore, doc, getDoc, setDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyCArQbjhikyFuW_0aiIrZIXNi6P__xShJM",
+    authDomain: "hub-tecnologia-suri.firebaseapp.com",
+    projectId: "hub-tecnologia-suri",
+    storageBucket: "hub-tecnologia-suri.firebasestorage.app",
+    messagingSenderId: "741075804383",
+    appId: "1:741075804383:web:f887be098783683c98096a",
+    measurementId: "G-MD8LMGPQE1"
+  };
+
+  const fbApp = initializeApp(firebaseConfig);
+  const db = getFirestore(fbApp);
+
   const SECTIONS = {
     bugs: {
       title: 'Central de Bugs', sub: 'Organize pastas e documentos sobre falhas reportadas e sua resolução.',
@@ -493,30 +509,30 @@
     await renderFolders();
   }
 
-  function foldersKey(section){ return 'hub:folders:' + section; }
-  function docsKey(section, folderId){ return 'hub:docs:' + section + ':' + folderId; }
+  function foldersDocRef(section){ return doc(db, 'hub', 'folders_' + section); }
+  function docsDocRef(section, folderId){ return doc(db, 'hub', 'docs_' + section + '_' + folderId); }
 
   async function loadFolders(section){
     try{
-      const res = await window.storage.get(foldersKey(section), true);
-      if(!res || !res.value) return [];
-      return JSON.parse(res.value);
-    }catch(e){ return []; }
+      const snap = await getDoc(foldersDocRef(section));
+      if(!snap.exists()) return [];
+      return snap.data().items || [];
+    }catch(e){ console.error(e); return []; }
   }
   async function saveFolders(section, folders){
-    try{ return !!(await window.storage.set(foldersKey(section), JSON.stringify(folders), true)); }
-    catch(e){ return false; }
+    try{ await setDoc(foldersDocRef(section), { items: folders }); return true; }
+    catch(e){ console.error(e); return false; }
   }
   async function loadDocs(section, folderId){
     try{
-      const res = await window.storage.get(docsKey(section, folderId), true);
-      if(!res || !res.value) return [];
-      return JSON.parse(res.value);
-    }catch(e){ return []; }
+      const snap = await getDoc(docsDocRef(section, folderId));
+      if(!snap.exists()) return [];
+      return snap.data().items || [];
+    }catch(e){ console.error(e); return []; }
   }
   async function saveDocs(section, folderId, docs){
-    try{ return !!(await window.storage.set(docsKey(section, folderId), JSON.stringify(docs), true)); }
-    catch(e){ return false; }
+    try{ await setDoc(docsDocRef(section, folderId), { items: docs }); return true; }
+    catch(e){ console.error(e); return false; }
   }
 
   async function refreshAllCounts(){
@@ -625,7 +641,7 @@
     const filtered = folders.filter(f => f.id !== id);
     const ok = await saveFolders(state.section, filtered);
     if(ok){
-      try{ await window.storage.delete(docsKey(state.section, id), true); }catch(e){}
+      try{ await deleteDoc(docsDocRef(state.section, id)); }catch(e){}
       renderFolders();
     }
   }
@@ -743,6 +759,22 @@
   function escapeAttr(str){ return String(str).replace(/'/g, "\\'"); }
 
   refreshAllCounts();
+
+  // expõe as funções usadas nos botões (onclick) do HTML, já que este é um script type="module"
+  window.goHome = goHome;
+  window.backToSection = backToSection;
+  window.backToFolder = backToFolder;
+  window.openSection = openSection;
+  window.createFolder = createFolder;
+  window.startRenameFolder = startRenameFolder;
+  window.cancelRenameFolder = cancelRenameFolder;
+  window.saveRenameFolder = saveRenameFolder;
+  window.deleteFolder = deleteFolder;
+  window.openFolder = openFolder;
+  window.createDocument = createDocument;
+  window.deleteDocument = deleteDocument;
+  window.saveCurrentDocument = saveCurrentDocument;
+  window.deleteCurrentDocument = deleteCurrentDocument;
 </script>
 
 </body>
