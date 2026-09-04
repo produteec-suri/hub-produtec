@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HUB de Tecnologia · Suri</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg-0:#0a0a16;
+    --bg-1:#0e0c1e;
+    --card:#15132a;
+    --card-2:#191733;
+    --card-border:#26234a;
+    --card-border-hover:#3a3570;
+    --ink:#ffffff;
+    --muted:#a6a2c4;
+    --muted-2:#8985ab;
+    --purple:#8b7bf0;
+    --purple-dim:#6459b8;
+    --green:#3ddc97;
+    --green-bg:rgba(61,220,151,.12);
+    --red:#ff8a8a;
+    --red-bg:rgba(255,110,110,.14);
+    --pill:#1c1936;
+  }
+
+  *{box-sizing:border-box;}
+
+  body{
+    margin:0;
+    font-family:'Sora',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+    background:
+      radial-gradient(1100px 500px at 15% -10%, rgba(139,123,240,.16), transparent 60%),
+      radial-gradient(900px 500px at 100% 10%, rgba(61,220,151,.08), transparent 55%),
+      linear-gradient(180deg, var(--bg-1), var(--bg-0) 45%);
+    color:var(--ink);
+    min-height:100vh;
+  }
+
+  header{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:18px 40px;
+    border-bottom:1px solid rgba(255,255,255,.06);
+  }
+
+  .brand{
+    display:flex;
+    align-items:center;
+    gap:14px;
+    cursor:pointer;
+  }
+
+  .brand-mark{
+    width:38px;
+    height:38px;
+    border-radius:10px;
+    background:linear-gradient(135deg, var(--purple), #4b3fa0);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-weight:800;
+    font-size:15px;
+    letter-spacing:-.02em;
+    color:#fff;
+    flex-shrink:0;
+  }
+
+  .brand-text b{ display:block; font-size:15px; font-weight:700; letter-spacing:-.01em; color:var(--ink); }
+  .brand-text span{ display:block; font-size:12.5px; color:var(--muted-2); margin-top:1px; }
+
+  .header-actions{ display:flex; align-items:center; gap:10px; }
+
+  .pill-btn{
+    padding:9px 18px;
+    border-radius:999px;
+    font-size:13.5px;
+    font-weight:600;
+    font-family:inherit;
+    border:1px solid rgba(255,255,255,.1);
+    background:var(--pill);
+    color:var(--ink);
+    cursor:default;
+  }
+  .pill-btn.ghost{ background:transparent; color:var(--muted); }
+
+  main{ max-width:1180px; margin:0 auto; padding:64px 32px 100px; }
+
+  .eyebrow{
+    display:flex; align-items:center; gap:8px; width:fit-content; margin:0 auto 26px;
+    padding:7px 16px; border-radius:999px; background:var(--pill);
+    border:1px solid rgba(255,255,255,.08); color:var(--purple);
+    font-size:12.5px; font-weight:700; letter-spacing:.02em;
+  }
+  .eyebrow::before{ content:""; width:6px; height:6px; border-radius:50%; background:var(--purple); }
+
+  h1{ text-align:center; font-size:46px; line-height:1.1; letter-spacing:-.02em; margin:0 0 18px; font-weight:800; color:var(--ink); }
+
+  .lede{ text-align:center; max-width:560px; margin:0 auto 56px; color:var(--muted); font-size:16.5px; line-height:1.6; }
+
+  .grid{ display:grid; grid-template-columns:repeat(3, 1fr); gap:22px; }
+
+  .card{
+    background:var(--card); border:1px solid var(--card-border); border-radius:20px;
+    padding:30px 28px 28px; display:flex; flex-direction:column;
+    transition:border-color .18s ease, transform .18s ease; position:relative;
+    cursor:pointer; text-align:left; font-family:inherit;
+  }
+  .card:hover{ border-color:var(--card-border-hover); transform:translateY(-2px); }
+
+  .card-icon{ width:46px; height:46px; border-radius:12px; display:flex; align-items:center; justify-content:center; margin-bottom:20px; }
+  .card-icon svg{ width:22px; height:22px; }
+
+  .icon-bugs{ background:var(--red-bg); }
+  .icon-bugs svg{ stroke:var(--red); }
+  .icon-train{ background:rgba(139,123,240,.16); }
+  .icon-train svg{ stroke:var(--purple); }
+  .icon-req{ background:var(--green-bg); }
+  .icon-req svg{ stroke:var(--green); }
+
+  .card h2{ font-size:20px; font-weight:700; margin:0 0 10px; letter-spacing:-.01em; color:var(--ink); }
+  .card p.desc{ color:var(--muted); font-size:14.5px; line-height:1.6; margin:0 0 20px; }
+
+  .links{ list-style:none; padding:0; margin:0 0 24px; display:flex; flex-direction:column; gap:10px; }
+  .links li{ display:flex; align-items:center; gap:9px; font-size:14px; font-weight:600; color:var(--ink); }
+  .links li::before{ content:""; width:6px; height:6px; border-radius:50%; flex-shrink:0; }
+  .card.bugs .links li::before{ background:var(--red); }
+  .card.train .links li::before{ background:var(--purple); }
+  .card.req .links li::before{ background:var(--green); }
+
+  .links li .count{
+    margin-left:auto; font-size:10.5px; font-weight:700; letter-spacing:.03em;
+    background:rgba(255,255,255,.06); color:var(--muted-2); padding:3px 9px; border-radius:999px;
+  }
+
+  .access{
+    margin-top:auto; font-size:14.5px; font-weight:700; text-decoration:none;
+    background:none; border:none; font-family:inherit; padding:0;
+    display:inline-flex; align-items:center; gap:6px; width:fit-content; cursor:pointer;
+  }
+  .card.bugs .access{ color:var(--red); }
+  .card.train .access{ color:var(--purple); }
+  .card.req .access{ color:var(--green); }
+
+  .card.req{ border-color:rgba(61,220,151,.35); box-shadow:0 0 0 1px rgba(61,220,151,.08); }
+
+  .badge-new{
+    position:absolute; top:24px; right:24px; background:var(--green-bg); color:var(--green);
+    font-size:10.5px; font-weight:800; letter-spacing:.03em; padding:4px 10px; border-radius:999px;
+  }
+
+  /* ---- shared sub-page chrome ---- */
+
+  .back-btn{
+    display:inline-flex; align-items:center; gap:8px; background:none; border:none;
+    font-family:inherit; color:var(--muted); font-size:14px; font-weight:600; cursor:pointer; padding:0 0 24px;
+  }
+  .back-btn:hover{ color:var(--ink); }
+
+  .breadcrumb{
+    display:flex; align-items:center; gap:8px; flex-wrap:wrap;
+    font-size:13px; color:var(--muted-2); margin-bottom:18px;
+  }
+  .breadcrumb b{ color:var(--ink); font-weight:600; }
+
+  .section-head{ display:flex; align-items:center; gap:16px; margin-bottom:6px; }
+  .section-icon{ width:52px; height:52px; border-radius:14px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+  .section-icon svg{ width:24px; height:24px; }
+  .section-head h1{ text-align:left; font-size:32px; margin:0; }
+  .section-sub{ color:var(--muted); font-size:15px; margin:6px 0 32px; max-width:560px; }
+  .hint{ font-size:12px; color:var(--muted-2); margin:-16px 0 26px; }
+
+  /* ---- add row (folders / documents) ---- */
+
+  .add-row{
+    display:flex; gap:10px; margin-bottom:26px;
+  }
+  .add-row input[type="text"]{ flex:1; }
+  input[type="text"], textarea{
+    background:var(--card); border:1px solid var(--card-border); border-radius:10px;
+    padding:11px 14px; color:var(--ink); font-family:inherit; font-size:14px; outline:none;
+  }
+  input[type="text"]:focus, textarea:focus{ border-color:var(--purple); }
+  input[type="text"]::placeholder, textarea::placeholder{ color:var(--muted-2); }
+
+  .btn{
+    padding:10px 20px; border-radius:10px; border:none; font-family:inherit;
+    font-weight:700; font-size:14px; cursor:pointer; color:#0a0a16; background:var(--purple);
+    white-space:nowrap;
+  }
+  .btn.sm{ padding:7px 14px; font-size:13px; }
+  .btn.subtle{ background:var(--pill); color:var(--ink); border:1px solid var(--card-border); }
+
+  /* ---- folder grid ---- */
+
+  .folder-grid{ display:grid; grid-template-columns:repeat(auto-fill, minmax(230px, 1fr)); gap:16px; }
+
+  .folder-card{
+    background:var(--card); border:1px solid var(--card-border); border-radius:16px;
+    padding:20px; position:relative; transition:border-color .15s ease;
+  }
+  .folder-card:hover{ border-color:var(--card-border-hover); }
+
+  .folder-icon{ width:36px; height:36px; margin-bottom:14px; }
+  .folder-icon svg{ width:100%; height:100%; }
+
+  .folder-name{
+    font-weight:700; font-size:15.5px; color:var(--ink); margin:0 0 6px;
+    cursor:pointer; word-break:break-word;
+  }
+  .folder-meta{ font-size:12px; color:var(--muted-2); }
+
+  .folder-actions{
+    position:absolute; top:16px; right:14px; display:flex; gap:4px;
+  }
+  .icon-btn{
+    width:26px; height:26px; border-radius:7px; border:none; background:rgba(255,255,255,.05);
+    color:var(--muted); display:flex; align-items:center; justify-content:center; cursor:pointer;
+  }
+  .icon-btn:hover{ background:rgba(255,255,255,.1); color:var(--ink); }
+  .icon-btn svg{ width:14px; height:14px; }
+  .icon-btn.danger:hover{ color:var(--red); }
+
+  .rename-row{ display:flex; gap:8px; margin-bottom:8px; }
+  .rename-row input{ flex:1; }
+
+  /* ---- document list ---- */
+
+  .doc-list{ display:flex; flex-direction:column; gap:10px; }
+
+  .doc-row{
+    background:var(--card); border:1px solid var(--card-border); border-radius:14px;
+    padding:16px 18px; display:flex; align-items:center; gap:14px; cursor:pointer;
+    transition:border-color .15s ease;
+  }
+  .doc-row:hover{ border-color:var(--card-border-hover); }
+
+  .doc-icon{ width:32px; height:32px; flex-shrink:0; }
+  .doc-icon svg{ width:100%; height:100%; }
+
+  .doc-main{ flex:1; min-width:0; }
+  .doc-title{ font-weight:700; font-size:14.5px; color:var(--ink); margin:0 0 4px; }
+  .doc-snippet{ font-size:12.5px; color:var(--muted-2); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .doc-date{ font-size:11.5px; color:var(--muted-2); flex-shrink:0; }
+
+  .doc-actions{ display:flex; gap:4px; flex-shrink:0; }
+
+  .empty-state{ color:var(--muted-2); font-size:14px; text-align:center; padding:36px 0; }
+
+  /* ---- document editor ---- */
+
+  .editor-title-input{
+    width:100%; font-size:24px; font-weight:700; color:var(--ink);
+    background:transparent; border:none; border-bottom:1px solid var(--card-border);
+    padding:6px 0 14px; margin-bottom:20px; font-family:inherit; outline:none;
+  }
+  .editor-title-input:focus{ border-color:var(--purple); }
+
+  .editor-textarea{
+    width:100%; min-height:420px; background:var(--card); border:1px solid var(--card-border);
+    border-radius:14px; padding:22px; font-family:inherit; font-size:15px; line-height:1.7;
+    color:var(--ink); resize:vertical; outline:none;
+  }
+  .editor-textarea:focus{ border-color:var(--purple); }
+
+  .editor-bar{ display:flex; align-items:center; justify-content:space-between; margin-bottom:6px; }
+  .save-indicator{ font-size:12.5px; color:var(--muted-2); }
+  .save-indicator.saved{ color:var(--green); }
+
+  [data-view]{ display:none; }
+  [data-view].active{ display:block; }
+
+  @media (max-width:900px){
+    .grid{ grid-template-columns:1fr; }
+    h1{ font-size:34px; }
+    header{ padding:16px 20px; }
+    main{ padding:44px 20px 70px; }
+    .add-row{ flex-direction:column; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand" onclick="goHome()">
+    <div class="brand-mark">Sú</div>
+    <div class="brand-text">
+      <b>HUB de Tecnologia</b>
+      <span>Suri · Uso interno</span>
+    </div>
+  </div>
+  <div class="header-actions">
+    <span class="pill-btn ghost">Bem-vindo</span>
+    <span class="pill-btn">Sair</span>
+  </div>
+</header>
+
+<main>
+
+  <!-- HOME -->
+  <div data-view="home" class="active">
+    <div class="eyebrow">HUB TECNOLOGIA · 2026</div>
+    <h1>Central Técnica</h1>
+    <p class="lede">
+      Escolha a central certa para organizar pastas e documentos sobre bugs,
+      treinamentos ou requisitos do time de produto.
+    </p>
+
+    <div class="grid">
+      <button class="card bugs" onclick="openSection('bugs')">
+        <div class="card-icon icon-bugs">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="8" y="7" width="8" height="11" rx="4"></rect>
+            <path d="M12 7V4M9 4h6M4 12H2M22 12h-2M5 8l-2-2M19 8l2-2M5 17l-2 2M19 17l2 2"></path>
+          </svg>
+        </div>
+        <h2>Central de Bugs</h2>
+        <p class="desc">Organize pastas por bug, funcionalidade ou sprint, com documentos de reprodução e status.</p>
+        <ul class="links"><li>Pastas <span class="count" id="count-bugs">0</span></li></ul>
+        <span class="access">Acessar central →</span>
+      </button>
+
+      <button class="card train" onclick="openSection('train')">
+        <div class="card-icon icon-train">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M22 10L12 5 2 10l10 5 10-5Z"></path>
+            <path d="M6 12v5c0 1.5 2.7 3 6 3s6-1.5 6-3v-5"></path>
+          </svg>
+        </div>
+        <h2>Treinamentos</h2>
+        <p class="desc">Organize pastas por trilha ou tema, com documentos de conteúdo e materiais de apoio.</p>
+        <ul class="links"><li>Pastas <span class="count" id="count-train">0</span></li></ul>
+        <span class="access">Acessar treinamentos →</span>
+      </button>
+
+      <button class="card req" onclick="openSection('req')">
+        <span class="badge-new">NOVO</span>
+        <div class="card-icon icon-req">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M9 3h6l1 3h3v15H5V6h3l1-3Z"></path>
+            <path d="M9 11h6M9 15h6"></path>
+          </svg>
+        </div>
+        <h2>Requisitos</h2>
+        <p class="desc">Organize pastas por projeto ou squad, com documentos detalhando cada requisito.</p>
+        <ul class="links"><li>Pastas <span class="count" id="count-req">0</span></li></ul>
+        <span class="access">Acessar requisitos →</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- SECTION: folder grid -->
+  <div data-view="section">
+    <button class="back-btn" onclick="goHome()">← Voltar para a Central Técnica</button>
+    <div class="section-head">
+      <div class="section-icon" id="sec-icon-wrap"></div>
+      <h1 id="sec-title"></h1>
+    </div>
+    <p class="section-sub" id="sec-sub"></p>
+    <p class="hint">Pastas e documentos ficam visíveis para todo o time que acessar este hub.</p>
+
+    <div class="add-row">
+      <input type="text" id="new-folder-name" placeholder="Nome da nova pasta">
+      <button class="btn" id="new-folder-btn" onclick="createFolder()">+ Nova pasta</button>
+    </div>
+
+    <div class="folder-grid" id="folder-grid">
+      <div class="empty-state">Carregando pastas…</div>
+    </div>
+  </div>
+
+  <!-- FOLDER: document list -->
+  <div data-view="folder">
+    <button class="back-btn" onclick="backToSection()">← Voltar para pastas</button>
+    <div class="breadcrumb">
+      <span id="crumb-section"></span> <span>/</span> <b id="crumb-folder"></b>
+    </div>
+
+    <div class="add-row">
+      <input type="text" id="new-doc-name" placeholder="Nome do novo documento">
+      <button class="btn" id="new-doc-btn" onclick="createDocument()">+ Novo documento</button>
+    </div>
+
+    <div class="doc-list" id="doc-list">
+      <div class="empty-state">Carregando documentos…</div>
+    </div>
+  </div>
+
+  <!-- DOCUMENT: editor -->
+  <div data-view="document">
+    <button class="back-btn" onclick="backToFolder()">← Voltar para a pasta</button>
+    <div class="breadcrumb">
+      <span id="doc-crumb-section"></span> <span>/</span> <span id="doc-crumb-folder"></span>
+    </div>
+
+    <input type="text" class="editor-title-input" id="doc-title-input" placeholder="Título do documento">
+
+    <div class="editor-bar">
+      <span></span>
+      <span class="save-indicator" id="save-indicator">&nbsp;</span>
+    </div>
+    <textarea class="editor-textarea" id="doc-content-input" placeholder="Escreva aqui o conteúdo do documento..."></textarea>
+
+    <div style="margin-top:16px;">
+      <button class="btn subtle" onclick="deleteCurrentDocument()">Excluir documento</button>
+    </div>
+  </div>
+
+</main>
+
+<script>
+  const SECTIONS = {
+    bugs: {
+      title: 'Central de Bugs', sub: 'Organize pastas e documentos sobre falhas reportadas e sua resolução.',
+      bg: 'var(--red-bg)',
+      icon: '<svg viewBox="0 0 24 24" fill="none" stroke="var(--red)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="7" width="8" height="11" rx="4"></rect><path d="M12 7V4M9 4h6M4 12H2M22 12h-2M5 8l-2-2M19 8l2-2M5 17l-2 2M19 17l2 2"></path></svg>',
+      color: 'var(--red)'
+    },
+    train: {
+      title: 'Treinamentos', sub: 'Organize pastas e documentos de trilhas, cursos e materiais de apoio.',
+      bg: 'rgba(139,123,240,.16)',
+      icon: '<svg viewBox="0 0 24 24" fill="none" stroke="var(--purple)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10L12 5 2 10l10 5 10-5Z"></path><path d="M6 12v5c0 1.5 2.7 3 6 3s6-1.5 6-3v-5"></path></svg>',
+      color: 'var(--purple)'
+    },
+    req: {
+      title: 'Requisitos', sub: 'Organize pastas e documentos com requisitos de produto e sua análise.',
+      bg: 'var(--green-bg)',
+      icon: '<svg viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6l1 3h3v15H5V6h3l1-3Z"></path><path d="M9 11h6M9 15h6"></path></svg>',
+      color: 'var(--green)'
+    }
+  };
+
+  const FOLDER_SVG = (color) => '<svg viewBox="0 0 24 24" fill="none" stroke="' + color + '" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7Z"></path></svg>';
+  const DOC_SVG = (color) => '<svg viewBox="0 0 24 24" fill="none" stroke="' + color + '" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 3h7l5 5v13a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1Z"></path><path d="M13 3v5h5"></path><path d="M9 13h6M9 17h6"></path></svg>';
+  const PENCIL_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"></path></svg>';
+  const TRASH_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"></path><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path></svg>';
+
+  let state = { section: null, folderId: null, folderName: null, docId: null };
+  let saveTimer = null;
+
+  function show(view){
+    document.querySelectorAll('[data-view]').forEach(el => el.classList.remove('active'));
+    document.querySelector('[data-view="' + view + '"]').classList.add('active');
+  }
+
+  function goHome(){
+    state = { section: null, folderId: null, folderName: null, docId: null };
+    show('home');
+    refreshAllCounts();
+  }
+
+  function backToSection(){
+    state.folderId = null; state.folderName = null; state.docId = null;
+    show('section');
+    renderFolders();
+  }
+
+  function backToFolder(){
+    state.docId = null;
+    show('folder');
+    renderDocs();
+  }
+
+  async function openSection(key){
+    state = { section: key, folderId: null, folderName: null, docId: null };
+    const cfg = SECTIONS[key];
+    document.getElementById('sec-title').textContent = cfg.title;
+    document.getElementById('sec-sub').textContent = cfg.sub;
+    document.getElementById('sec-icon-wrap').style.background = cfg.bg;
+    document.getElementById('sec-icon-wrap').innerHTML = cfg.icon;
+    document.getElementById('new-folder-btn').style.background = cfg.color;
+    document.getElementById('new-folder-name').value = '';
+    show('section');
+    await renderFolders();
+  }
+
+  function foldersKey(section){ return 'hub:folders:' + section; }
+  function docsKey(section, folderId){ return 'hub:docs:' + section + ':' + folderId; }
+
+  async function loadFolders(section){
+    try{
+      const res = await window.storage.get(foldersKey(section), true);
+      if(!res || !res.value) return [];
+      return JSON.parse(res.value);
+    }catch(e){ return []; }
+  }
+  async function saveFolders(section, folders){
+    try{ return !!(await window.storage.set(foldersKey(section), JSON.stringify(folders), true)); }
+    catch(e){ return false; }
+  }
+  async function loadDocs(section, folderId){
+    try{
+      const res = await window.storage.get(docsKey(section, folderId), true);
+      if(!res || !res.value) return [];
+      return JSON.parse(res.value);
+    }catch(e){ return []; }
+  }
+  async function saveDocs(section, folderId, docs){
+    try{ return !!(await window.storage.set(docsKey(section, folderId), JSON.stringify(docs), true)); }
+    catch(e){ return false; }
+  }
+
+  async function refreshAllCounts(){
+    for(const key of Object.keys(SECTIONS)){
+      const folders = await loadFolders(key);
+      const el = document.getElementById('count-' + key);
+      if(el) el.textContent = folders.length;
+    }
+  }
+
+  async function renderFolders(){
+    const grid = document.getElementById('folder-grid');
+    grid.innerHTML = '<div class="empty-state">Carregando pastas…</div>';
+    const folders = await loadFolders(state.section);
+    const cfg = SECTIONS[state.section];
+
+    if(folders.length === 0){
+      grid.innerHTML = '<div class="empty-state">Nenhuma pasta ainda. Crie a primeira acima.</div>';
+      return;
+    }
+
+    grid.innerHTML = '';
+    folders.forEach(folder => {
+      const card = document.createElement('div');
+      card.className = 'folder-card';
+      card.innerHTML =
+        '<div class="folder-actions">' +
+          '<button class="icon-btn" title="Renomear" onclick="event.stopPropagation();renameFolder(\'' + folder.id + '\')">' + PENCIL_SVG + '</button>' +
+          '<button class="icon-btn danger" title="Excluir" onclick="event.stopPropagation();deleteFolder(\'' + folder.id + '\')">' + TRASH_SVG + '</button>' +
+        '</div>' +
+        '<div class="folder-icon">' + FOLDER_SVG(cfg.color) + '</div>' +
+        '<p class="folder-name" onclick="openFolder(\'' + folder.id + '\',\'' + escapeAttr(folder.name) + '\')">' + escapeHtml(folder.name) + '</p>' +
+        '<div class="folder-meta">' + (folder.docCount || 0) + ' documento(s)</div>';
+      grid.appendChild(card);
+    });
+
+    // update doc counts async without blocking render
+    folders.forEach(async f => {
+      const docs = await loadDocs(state.section, f.id);
+      f.docCount = docs.length;
+    });
+  }
+
+  async function createFolder(){
+    const input = document.getElementById('new-folder-name');
+    const name = input.value.trim();
+    if(!name) return;
+    const folders = await loadFolders(state.section);
+    folders.push({ id: genId(), name, created: new Date().toLocaleDateString('pt-BR') });
+    const ok = await saveFolders(state.section, folders);
+    if(ok){ input.value = ''; renderFolders(); }
+  }
+
+  async function renameFolder(id){
+    const folders = await loadFolders(state.section);
+    const folder = folders.find(f => f.id === id);
+    if(!folder) return;
+    const newName = prompt('Renomear pasta:', folder.name);
+    if(newName === null) return;
+    const trimmed = newName.trim();
+    if(!trimmed) return;
+    folder.name = trimmed;
+    const ok = await saveFolders(state.section, folders);
+    if(ok) renderFolders();
+  }
+
+  async function deleteFolder(id){
+    if(!confirm('Excluir esta pasta e todos os documentos dentro dela?')) return;
+    const folders = await loadFolders(state.section);
+    const filtered = folders.filter(f => f.id !== id);
+    const ok = await saveFolders(state.section, filtered);
+    if(ok){
+      try{ await window.storage.delete(docsKey(state.section, id), true); }catch(e){}
+      renderFolders();
+    }
+  }
+
+  async function openFolder(folderId, folderName){
+    state.folderId = folderId;
+    state.folderName = folderName;
+    document.getElementById('crumb-section').textContent = SECTIONS[state.section].title;
+    document.getElementById('crumb-folder').textContent = folderName;
+    document.getElementById('new-doc-btn').style.background = SECTIONS[state.section].color;
+    document.getElementById('new-doc-name').value = '';
+    show('folder');
+    await renderDocs();
+  }
+
+  async function renderDocs(){
+    const list = document.getElementById('doc-list');
+    list.innerHTML = '<div class="empty-state">Carregando documentos…</div>';
+    const docs = await loadDocs(state.section, state.folderId);
+    const cfg = SECTIONS[state.section];
+
+    if(docs.length === 0){
+      list.innerHTML = '<div class="empty-state">Nenhum documento ainda. Crie o primeiro acima.</div>';
+      return;
+    }
+
+    list.innerHTML = '';
+    docs.slice().reverse().forEach(doc => {
+      const row = document.createElement('div');
+      row.className = 'doc-row';
+      row.onclick = () => openDocument(doc.id);
+      const snippet = (doc.content || '').replace(/\n/g, ' ').slice(0, 90);
+      row.innerHTML =
+        '<div class="doc-icon">' + DOC_SVG(cfg.color) + '</div>' +
+        '<div class="doc-main">' +
+          '<p class="doc-title">' + escapeHtml(doc.title || 'Sem título') + '</p>' +
+          '<p class="doc-snippet">' + escapeHtml(snippet || 'Documento em branco') + '</p>' +
+        '</div>' +
+        '<div class="doc-date">' + (doc.updated || '') + '</div>' +
+        '<div class="doc-actions">' +
+          '<button class="icon-btn danger" title="Excluir" onclick="event.stopPropagation();deleteDocument(\'' + doc.id + '\')">' + TRASH_SVG + '</button>' +
+        '</div>';
+      list.appendChild(row);
+    });
+  }
+
+  async function createDocument(){
+    const input = document.getElementById('new-doc-name');
+    const title = input.value.trim();
+    if(!title) return;
+    const docs = await loadDocs(state.section, state.folderId);
+    const doc = { id: genId(), title, content: '', updated: new Date().toLocaleDateString('pt-BR', { day:'2-digit', month:'short', year:'numeric' }) };
+    docs.push(doc);
+    const ok = await saveDocs(state.section, state.folderId, docs);
+    if(ok){ input.value = ''; openDocument(doc.id); }
+  }
+
+  async function openDocument(docId){
+    const docs = await loadDocs(state.section, state.folderId);
+    const doc = docs.find(d => d.id === docId);
+    if(!doc) return;
+    state.docId = docId;
+    document.getElementById('doc-crumb-section').textContent = SECTIONS[state.section].title;
+    document.getElementById('doc-crumb-folder').textContent = state.folderName;
+    document.getElementById('doc-title-input').value = doc.title;
+    document.getElementById('doc-content-input').value = doc.content || '';
+    document.getElementById('save-indicator').textContent = '\u00A0';
+    document.getElementById('save-indicator').classList.remove('saved');
+    show('document');
+  }
+
+  function scheduleSave(){
+    const indicator = document.getElementById('save-indicator');
+    indicator.textContent = 'Salvando…';
+    indicator.classList.remove('saved');
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(saveCurrentDocument, 500);
+  }
+
+  async function saveCurrentDocument(){
+    const docs = await loadDocs(state.section, state.folderId);
+    const doc = docs.find(d => d.id === state.docId);
+    if(!doc) return;
+    doc.title = document.getElementById('doc-title-input').value.trim() || 'Sem título';
+    doc.content = document.getElementById('doc-content-input').value;
+    doc.updated = new Date().toLocaleDateString('pt-BR', { day:'2-digit', month:'short', year:'numeric' });
+    const ok = await saveDocs(state.section, state.folderId, docs);
+    const indicator = document.getElementById('save-indicator');
+    if(ok){ indicator.textContent = 'Salvo'; indicator.classList.add('saved'); }
+    else{ indicator.textContent = 'Erro ao salvar'; }
+  }
+
+  async function deleteDocument(docId){
+    if(!confirm('Excluir este documento?')) return;
+    const docs = await loadDocs(state.section, state.folderId);
+    const filtered = docs.filter(d => d.id !== docId);
+    const ok = await saveDocs(state.section, state.folderId, filtered);
+    if(ok) renderDocs();
+  }
+
+  async function deleteCurrentDocument(){
+    if(!confirm('Excluir este documento?')) return;
+    const docs = await loadDocs(state.section, state.folderId);
+    const filtered = docs.filter(d => d.id !== state.docId);
+    const ok = await saveDocs(state.section, state.folderId, filtered);
+    if(ok) backToFolder();
+  }
+
+  document.getElementById('doc-title-input').addEventListener('input', scheduleSave);
+  document.getElementById('doc-content-input').addEventListener('input', scheduleSave);
+
+  function genId(){ return Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
+  function escapeHtml(str){ const div = document.createElement('div'); div.textContent = str; return div.innerHTML; }
+  function escapeAttr(str){ return String(str).replace(/'/g, "\\'"); }
+
+  refreshAllCounts();
+</script>
+
+</body>
+</html>
