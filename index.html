@@ -225,8 +225,14 @@
   .icon-btn svg{ width:14px; height:14px; }
   .icon-btn.danger:hover{ color:var(--red); }
 
-  .rename-row{ display:flex; gap:8px; margin-bottom:8px; }
+  .rename-row{ display:flex; gap:8px; margin-bottom:6px; align-items:center; }
   .rename-row input{ flex:1; }
+  .rename-row .btn.sm{ flex-shrink:0; }
+  .rename-cancel{
+    background:none; border:none; color:var(--muted-2); cursor:pointer;
+    font-family:inherit; font-size:12px; padding:0 2px;
+  }
+  .rename-cancel:hover{ color:var(--ink); }
 
   /* ---- document list ---- */
 
@@ -253,12 +259,15 @@
 
   /* ---- document editor ---- */
 
-  .editor-title-input{
-    width:100%; font-size:24px; font-weight:700; color:var(--ink);
-    background:transparent; border:none; border-bottom:1px solid var(--card-border);
-    padding:6px 0 14px; margin-bottom:20px; font-family:inherit; outline:none;
+  .editor-title-row{
+    display:flex; align-items:center; gap:12px; margin-bottom:20px;
+    border-bottom:1px solid var(--card-border); padding-bottom:6px;
   }
-  .editor-title-input:focus{ border-color:var(--purple); }
+  .editor-title-row:focus-within{ border-color:var(--purple); }
+  .editor-title-input{
+    flex:1; min-width:0; font-size:24px; font-weight:700; color:var(--ink);
+    background:transparent; border:none; padding:6px 0; font-family:inherit; outline:none;
+  }
 
   .editor-textarea{
     width:100%; min-height:420px; background:var(--card); border:1px solid var(--card-border);
@@ -397,7 +406,10 @@
       <span id="doc-crumb-section"></span> <span>/</span> <span id="doc-crumb-folder"></span>
     </div>
 
-    <input type="text" class="editor-title-input" id="doc-title-input" placeholder="Título do documento">
+    <div class="editor-title-row">
+      <input type="text" class="editor-title-input" id="doc-title-input" placeholder="Título do documento">
+      <button class="btn sm" id="doc-title-save-btn" onclick="saveCurrentDocument()">Salvar</button>
+    </div>
 
     <div class="editor-bar">
       <span></span>
@@ -441,6 +453,8 @@
 
   let state = { section: null, folderId: null, folderName: null, docId: null };
   let saveTimer = null;
+  let editingFolderId = null;
+  let foldersCache = [];
 
   function show(view){
     document.querySelectorAll('[data-view]').forEach(el => el.classList.remove('active'));
@@ -474,6 +488,7 @@
     document.getElementById('sec-icon-wrap').innerHTML = cfg.icon;
     document.getElementById('new-folder-btn').style.background = cfg.color;
     document.getElementById('new-folder-name').value = '';
+    editingFolderId = null;
     show('section');
     await renderFolders();
   }
@@ -516,6 +531,7 @@
     const grid = document.getElementById('folder-grid');
     grid.innerHTML = '<div class="empty-state">Carregando pastas…</div>';
     const folders = await loadFolders(state.section);
+    foldersCache = folders;
     const cfg = SECTIONS[state.section];
 
     if(folders.length === 0){
@@ -527,22 +543,70 @@
     folders.forEach(folder => {
       const card = document.createElement('div');
       card.className = 'folder-card';
-      card.innerHTML =
-        '<div class="folder-actions">' +
-          '<button class="icon-btn" title="Renomear" onclick="event.stopPropagation();renameFolder(\'' + folder.id + '\')">' + PENCIL_SVG + '</button>' +
-          '<button class="icon-btn danger" title="Excluir" onclick="event.stopPropagation();deleteFolder(\'' + folder.id + '\')">' + TRASH_SVG + '</button>' +
-        '</div>' +
-        '<div class="folder-icon">' + FOLDER_SVG(cfg.color) + '</div>' +
-        '<p class="folder-name" onclick="openFolder(\'' + folder.id + '\',\'' + escapeAttr(folder.name) + '\')">' + escapeHtml(folder.name) + '</p>' +
-        '<div class="folder-meta">' + (folder.docCount || 0) + ' documento(s)</div>';
+
+      if(editingFolderId === folder.id){
+        card.innerHTML =
+          '<div class="folder-icon">' + FOLDER_SVG(cfg.color) + '</div>' +
+          '<div class="rename-row">' +
+            '<input type="text" id="folder-edit-input" value="' + escapeAttr(folder.name) + '">' +
+            '<button class="btn sm" style="background:' + cfg.color + '" onclick="saveRenameFolder(\'' + folder.id + '\')">Salvar</button>' +
+          '</div>' +
+          '<button class="rename-cancel" onclick="cancelRenameFolder()">Cancelar</button>';
+      } else {
+        card.innerHTML =
+          '<div class="folder-actions">' +
+            '<button class="icon-btn" title="Renomear" onclick="event.stopPropagation();startRenameFolder(\'' + folder.id + '\')">' + PENCIL_SVG + '</button>' +
+            '<button class="icon-btn danger" title="Excluir" onclick="event.stopPropagation();deleteFolder(\'' + folder.id + '\')">' + TRASH_SVG + '</button>' +
+          '</div>' +
+          '<div class="folder-icon">' + FOLDER_SVG(cfg.color) + '</div>' +
+          '<p class="folder-name" onclick="openFolder(\'' + folder.id + '\',\'' + escapeAttr(folder.name) + '\')">' + escapeHtml(folder.name) + '</p>' +
+          '<div class="folder-meta">' + (folder.docCount || 0) + ' documento(s)</div>';
+      }
       grid.appendChild(card);
     });
+
+    if(editingFolderId){
+      const input = document.getElementById('folder-edit-input');
+      if(input){
+        input.focus();
+        input.select();
+        input.addEventListener('keydown', (e) => {
+          if(e.key === 'Enter') saveRenameFolder(editingFolderId);
+          if(e.key === 'Escape') cancelRenameFolder();
+        });
+      }
+    }
 
     // update doc counts async without blocking render
     folders.forEach(async f => {
       const docs = await loadDocs(state.section, f.id);
       f.docCount = docs.length;
     });
+  }
+
+  function startRenameFolder(id){
+    editingFolderId = id;
+    renderFolders();
+  }
+
+  function cancelRenameFolder(){
+    editingFolderId = null;
+    renderFolders();
+  }
+
+  async function saveRenameFolder(id){
+    const input = document.getElementById('folder-edit-input');
+    const newName = input ? input.value.trim() : '';
+    if(!newName) return;
+    const folders = await loadFolders(state.section);
+    const folder = folders.find(f => f.id === id);
+    if(!folder) return;
+    folder.name = newName;
+    const ok = await saveFolders(state.section, folders);
+    if(ok){
+      editingFolderId = null;
+      renderFolders();
+    }
   }
 
   async function createFolder(){
@@ -553,19 +617,6 @@
     folders.push({ id: genId(), name, created: new Date().toLocaleDateString('pt-BR') });
     const ok = await saveFolders(state.section, folders);
     if(ok){ input.value = ''; renderFolders(); }
-  }
-
-  async function renameFolder(id){
-    const folders = await loadFolders(state.section);
-    const folder = folders.find(f => f.id === id);
-    if(!folder) return;
-    const newName = prompt('Renomear pasta:', folder.name);
-    if(newName === null) return;
-    const trimmed = newName.trim();
-    if(!trimmed) return;
-    folder.name = trimmed;
-    const ok = await saveFolders(state.section, folders);
-    if(ok) renderFolders();
   }
 
   async function deleteFolder(id){
@@ -641,6 +692,7 @@
     document.getElementById('doc-crumb-folder').textContent = state.folderName;
     document.getElementById('doc-title-input').value = doc.title;
     document.getElementById('doc-content-input').value = doc.content || '';
+    document.getElementById('doc-title-save-btn').style.background = SECTIONS[state.section].color;
     document.getElementById('save-indicator').textContent = '\u00A0';
     document.getElementById('save-indicator').classList.remove('saved');
     show('document');
